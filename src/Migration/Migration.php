@@ -301,22 +301,22 @@ END;
  */
 class $camelizeName
 {
-    public function preUp($conn)
+    public function preUp(\$conn)
     {
         // add the pre-migration code here
     }
 
-    public function postUp($conn)
+    public function postUp(\$conn)
     {
         // add the post-migration code here
     }
 
-    public function preDown($conn)
+    public function preDown(\$conn)
     {
         // add the pre-migration code here
     }
 
-    public function postDown($conn)
+    public function postDown(\$conn)
     {
         // add the post-migration code here
     }
@@ -326,11 +326,12 @@ class $camelizeName
      *
      * @return string The SQL string to execute for the Up migration.
      */
-    public function up($conn)
+    public function up(\$conn)
     {
-         $conn->exec(<<<END
+         \$conn->exec(<<<END
 
-END);
+END
+        );
     }
 
     /**
@@ -338,11 +339,12 @@ END);
      *
      * @return string The SQL string to execute for the Down migration.
      */
-    public function down($conn)
+    public function down(\$conn)
     {
-         $conn->exec(<<<END
+         \$conn->exec(<<<END
 
-END);
+END
+        );
     }
 
 }
