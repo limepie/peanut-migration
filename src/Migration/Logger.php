@@ -50,7 +50,7 @@ class Logger
         {
             if ($this->config->get('colors'))
             {
-                echo pack('c',0x1B)."[0;31m"."ERROR >> ".$msg.pack('c',0x1B)."[0m\n";
+                echo pack('c',0x1B)."[0;31m".pack('c',0x1B)."[43m"."ERROR >> ".$msg.pack('c',0x1B)."[0m\n";
             }
             else
             {
