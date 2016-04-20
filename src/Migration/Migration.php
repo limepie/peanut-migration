@@ -462,7 +462,7 @@ EOF;
     {
         if($databases)
         {
-            $this-validateDatabaseNames($databases);
+            $this->validateDatabaseNames($databases);
         }
         else
         {
