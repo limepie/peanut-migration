@@ -234,7 +234,8 @@ class Migration
         $configpath = $cwd.'/'.$this->config_file;
         if (true === file_exists($configpath))
         {
-            throw new Exception("Exists $configpath");
+            $this->logger->write("Exists $configpath", null, "error");
+            exit();
         }
 
         if (false === is_dir(dirname($configpath)))
@@ -289,7 +290,8 @@ END;
                 if ($className === $camelizeName)
                 {
                     // Can't use same class name to migration tasks.
-                    throw new Exception("Can't use same class name to migration tasks. Duplicate migration task name [".$className."] and [".$file."].");
+                    $this->logger->write("Can't use same class name to migration tasks. Duplicate migration task name [".$className."] and [".$file."].", null, "error");
+                    exit();
                 }
             }
         }
@@ -434,7 +436,8 @@ EOF;
         $databases = $this->config->get('databases');
         if (!$databases)
         {
-            throw new Exception("Database settings are not found.");
+            $this->logger->write("Database settings are not found.", null, "error");
+            exit();
         }
         return array_keys($databases);
     }
@@ -451,14 +454,15 @@ EOF;
         {
             if (false === array_search($dbname, $configDatabaseNames))
             {
-                throw new Exception("Database '".$dbname."' is not defined.");
+                $this->logger->write("Database '".$dbname."' is not defined.", null, "error");
+                exit();
             }
         }
     }
 
     /**
      * Get defined database names
-     * @throws Exception
+     * @return databases
      */
     protected function getDatabaseNames($databases = array())
     {
@@ -551,7 +555,8 @@ EOF;
                 if (true === array_key_exists($className, $classes))
                 {
                     // Can't use same class name to migration tasks.
-                    throw new Exception("Can't use same class name to migration tasks. Duplicate migration task name [".$classes[$className]."] and [".$file."].");
+                    $this->logger->write("Can't use same class name to migration tasks. Duplicate migration task name [".$classes[$className]."] and [".$file."].", null, "error");
+                    exit();
                 }
 
                 $classes[$className] = $file;
@@ -585,7 +590,8 @@ EOF;
 
                 if (1 !== preg_match("/class +$className/", $class_text))
                 {
-                    throw new Exception("Unmatch defined class in the $file. You must define '$className' class in that file.");
+                    $this->logger->write("Unmatch defined class in the $file. You must define '$className' class in that file.", null, "error");
+                    exit();
                 }
 
                 // Check to exist same class name.
@@ -593,9 +599,9 @@ EOF;
                     && $classes[$className] != $file)
                 {
                     // Can't use same class name to migration tasks.
-                    throw new Exception("Can't use same class name to migration tasks. Duplicate migration task name [".$classes[$className]."] and [".$file."].");
+                    $this->logger->write("Can't use same class name to migration tasks. Duplicate migration task name [".$classes[$className]."] and [".$file."].", null, "error");
+                    exit();
                 }
-
                 $classes[$className] = $file;
                 $files[] = $file;
             }
@@ -620,7 +626,8 @@ EOF;
         $fp_cpl=fopen($this->version_path.'/.'.$database, 'wb');
         if (false===$fp_cpl)
         {
-            throw new Exception("Can't write version file ".$this->version_path.'/'.$database);
+            $this->logger->write("Can't write version file ".$this->version_path.'/'.$database, null, "error");
+            exit();
         }
         fwrite($fp_cpl, $version);
         fclose($fp_cpl);

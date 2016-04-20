@@ -46,6 +46,17 @@ class Logger
                 }
             }
         }
+        elseif ($level == 'error')
+        {
+            if ($this->config->get('colors'))
+            {
+                echo pack('c',0x1B)."[0;31m"."ERROR >> ".$msg.pack('c',0x1B)."[0m\n";
+            }
+            else
+            {
+                echo $prefix.$msg."\n";
+            }
+        }
         else
         {
             if ($this->config->get('colors'))
