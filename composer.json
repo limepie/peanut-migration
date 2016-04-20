@@ -16,7 +16,7 @@
     }
   ],
   "autoload": {
-    "psr-4": { "Migration": "src/" }
+    "psr-4": { "Peanut\\Migration\\": "src/" }
   },
   "require": {
     "php": ">=5.3.0"
