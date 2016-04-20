@@ -10,6 +10,7 @@ namespace Peanut\Migration;
  * Migration Logger Class
  *
  * @author kohkimakimoto <kohki.makimoto@gmail.com>
+ * @author Max <kwon@yejune.com>
  */
 class Logger
 {
