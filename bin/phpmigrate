@@ -14,5 +14,5 @@ if (is_file(__DIR__ . '/../vendor/autoload.php')) {
 
 }
 
-\LibMigration\Cli::main();
+\Migration::main();
 

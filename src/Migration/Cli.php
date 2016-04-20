@@ -1,10 +1,10 @@
 <?php
 /**
- * LibMigration
+ * Peanut\Migration
  *
- * @package    LibMigration
+ * @package    Peanut\Migration
  */
-namespace LibMigration;
+namespace Peanut\Migration;
 
 /**
  * Command line interface Class

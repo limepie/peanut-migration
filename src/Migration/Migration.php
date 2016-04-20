@@ -1,15 +1,16 @@
 <?php
 /**
- * LibMigration
+ * Peanut\Migration
  *
- * @package    LibMigration
+ * @package    Peanut\Migration
  */
-namespace LibMigration;
+namespace Peanut\Migration;
 
 /**
  * Migration Class
  *
  * @author kohkimakimoto <kohki.makimoto@gmail.com>
+ * @author max <kwon@yejune.com>
  */
 class Migration
 {

@@ -1,18 +1,22 @@
 {
-  "name": "kohkimakimoto/lib-migration",
+  "name": "peanut/migration",
   "description": "LibMigration is a minimum database migration library and framework for MySQL.",
   "keywords": ["migrations", "db", "database", "mysql"],
-  "homepage": "https://github.com/kohkimakimoto/lib-migration",
+  "homepage": "https://github.com/yejune/peanut-migration.git",
   "license": "Apache License 2.0",
   "authors": [
     {
       "name": "Kohki Makimoto",
       "email": "kohki.makimoto@gmail.com",
       "homepage": "http://kohkimakimoto.hatenablog.com/"
+    },
+    {
+      "name": "Max",
+      "email": "kwon@yejune.com"
     }
   ],
   "autoload": {
-    "psr-0": { "LibMigration": "src/" }
+    "psr-4": { "Migration": "src/" }
   },
   "require": {
     "php": ">=5.3.0"
