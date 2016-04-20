@@ -301,22 +301,22 @@ END;
  */
 class $camelizeName
 {
-    public function preUp()
+    public function preUp($conn)
     {
         // add the pre-migration code here
     }
 
-    public function postUp()
+    public function postUp($conn)
     {
         // add the post-migration code here
     }
 
-    public function preDown()
+    public function preDown($conn)
     {
         // add the pre-migration code here
     }
 
-    public function postDown()
+    public function postDown($conn)
     {
         // add the post-migration code here
     }
@@ -326,10 +326,11 @@ class $camelizeName
      *
      * @return string The SQL string to execute for the Up migration.
      */
-    public function getUpSQL()
+    public function up($conn)
     {
-         return <<<END
-END;
+         $conn->exec(<<<END
+
+END);
     }
 
     /**
@@ -337,10 +338,11 @@ END;
      *
      * @return string The SQL string to execute for the Down migration.
      */
-    public function getDownSQL()
+    public function down($conn)
     {
-         return <<<END
-END;
+         $conn->exec(<<<END
+
+END);
     }
 
 }
@@ -367,21 +369,18 @@ EOF;
 
         $migrationInstance = new $className();
 
+        $conn = $this->getConnection($database);
+
         if (true === method_exists($migrationInstance, 'preUp'))
         {
-            $migrationInstance->preUp();
+            $migrationInstance->preUp($conn);
         }
 
-        $sql = $migrationInstance->getUpSQL();
-        if (false === empty($sql))
-        {
-            $conn = $this->getConnection($database);
-            $conn->exec($sql);
-        }
+        $migrationInstance->up($conn);
 
         if (true === method_exists($migrationInstance, 'postUp'))
         {
-            $migrationInstance->postUp();
+            $migrationInstance->postUp($conn);
         }
 
         $this->updateSchemaVersion($version, $database);
@@ -404,21 +403,18 @@ EOF;
 
         $migrationInstance = new $className();
 
+        $conn = $this->getConnection($database);
+
         if (true === method_exists($migrationInstance, 'preDown'))
         {
-            $migrationInstance->preDown();
+            $migrationInstance->preDown($conn);
         }
 
-        $sql = $migrationInstance->getDownSQL();
-        if (false === empty($sql))
-        {
-            $conn = $this->getConnection($database);
-            $conn->exec($sql);
-        }
+        $sql = $migrationInstance->down($conn);
 
         if (true === method_exists($migrationInstance, 'postDown'))
         {
-            $migrationInstance->postDown();
+            $migrationInstance->postDown($conn);
         }
 
         $this->updateSchemaVersion($prev_version, $database);
