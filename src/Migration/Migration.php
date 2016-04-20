@@ -359,7 +359,7 @@ EOF;
 
     protected function migrateUp($file, $database)
     {
-        $this->logger->write("Proccesing migrate up by ".basename($file)."", "[$database]");
+        $this->logger->write("Processing migrate up by ".basename($file)."", "[$database]");
 
         include_once $file;
 
@@ -388,12 +388,14 @@ EOF;
 
     protected function migrateDown($file, $prev_version, $database)
     {
-        if ($prev_version === null)
+        if(null === $prev_version)
         {
-            $prev_version = 0;
+            $this->logger->write("Processing migrate down to version initialization by ".basename($file)."", "[$database]");
         }
-
-        $this->logger->write("Proccesing migrate down to version $prev_version by ".basename($file)."", "[$database]");
+        else
+        {
+            $this->logger->write("Processing migrate down to version $prev_version by ".basename($file)."", "[$database]");
+        }
 
         include_once $file;
 
@@ -603,6 +605,10 @@ EOF;
         if($version !== null)
         {
             $this->logger->write("Setting schema version '$version' from '$database'", null, "debug");
+        }
+        else
+        {
+            $this->logger->write("Setting schema version initialization from '$database'", null, "debug");
         }
         if (true === empty($version))
         {
