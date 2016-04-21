@@ -382,7 +382,7 @@ EOF;
         $className = Utils::camelize($matches[2]);
 
         $conn = $this->getConnection($database);
-        $conn->beginTransaction();
+
         try
         {
 
@@ -412,12 +412,10 @@ EOF;
                 }
             }
 
-            $conn->commit();
             $this->updateSchemaVersion($version, $database);
         }
         catch(\PDOException $e)
         {
-            $conn->rollback();
             $this->logger->write($e->getMessage(), null, "error");
             exit();
         }
@@ -441,7 +439,6 @@ EOF;
         $className = Utils::camelize($matches[2]);
 
         $conn = $this->getConnection($database);
-        $conn->beginTransaction();
         try
         {
 
@@ -471,12 +468,10 @@ EOF;
                 }
             }
 
-            $conn->commit();
             $this->updateSchemaVersion($prev_version, $database);
         }
         catch(\PDOException $e)
         {
-            $conn->rollback();
             $this->logger->write($e->getMessage(), null, "error");
             exit();
         }
