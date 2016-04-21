@@ -19,7 +19,7 @@ class Migration
     protected $logger;
     protected $conns = array();
     public $migration_dir = 'migrations';
-    const VERSION = '0.9';
+    const VERSION = '1.2.1';
 
     public function __construct($config = array())
     {
