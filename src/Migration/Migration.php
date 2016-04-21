@@ -19,6 +19,7 @@ class Migration
     protected $logger;
     protected $conns = array();
     public $migration_dir = 'migrations';
+    const VERSION = '0.9';
 
     public function __construct($config = array())
     {
@@ -36,7 +37,7 @@ class Migration
      */
     public function helpForCli()
     {
-        $this->logger->write("LibMigration is a minimum database migration library and framework for MySQL. version ".self::VERSION);
+        $this->logger->write("Peaunt\Migration is a minimum database migration library and framework for PDO\MySQL. version ".self::VERSION);
         $this->logger->write("");
         $this->logger->write("Copyright (c) Kohki Makimoto <kohki.makimoto@gmail.com>");
         $this->logger->write("Apache License 2.0");
@@ -303,22 +304,30 @@ END;
  */
 class $camelizeName
 {
-    public function preUp(\$conn)
+
+    public \$conn; // pdo connection
+
+    public function __construct(\PDO \$connection)
+    {
+        \$this->conn = \$connection;
+    }
+
+    public function preUp()
     {
         // add the pre-migration code here
     }
 
-    public function postUp(\$conn)
+    public function postUp()
     {
         // add the post-migration code here
     }
 
-    public function preDown(\$conn)
+    public function preDown()
     {
         // add the pre-migration code here
     }
 
-    public function postDown(\$conn)
+    public function postDown()
     {
         // add the post-migration code here
     }
@@ -326,26 +335,26 @@ class $camelizeName
     /**
      * Return the SQL statements for the Up migration
      *
-     * @return string The SQL string to execute for the Up migration.
+     * @return null or string The SQL string to execute for the Up migration.
      */
-    public function up(\$conn)
+    public function up()
     {
-         \$conn->exec(<<<END
+        \$this->conn->exec(<<<SQL
 
-END
+SQL
         );
     }
 
     /**
      * Return the SQL statements for the Down migration
      *
-     * @return string The SQL string to execute for the Down migration.
+     * @return null or string The SQL string to execute for the Down migration.
      */
-    public function down(\$conn)
+    public function down()
     {
-         \$conn->exec(<<<END
+        \$this->conn->exec(<<<SQL
 
-END
+SQL
         );
     }
 
@@ -371,23 +380,45 @@ EOF;
         $version    = $matches[1];
         $className = Utils::camelize($matches[2]);
 
-        $migrationInstance = new $className();
-
-        $conn = $this->getConnection($database);
-
-        if (true === method_exists($migrationInstance, 'preUp'))
+        try
         {
-            $migrationInstance->preUp($conn);
+            $conn = $this->getConnection($database);
+            $conn->beginTransaction();
+
+            $migrationInstance = new $className($conn);
+
+            if (true === method_exists($migrationInstance, 'preUp'))
+            {
+                $preUpSql = $migrationInstance->preUp();
+                if(true === Utils::isSQL($preUpSql))
+                {
+                    $conn->exec($preUpSql);
+                }
+            }
+
+            $upSql = $migrationInstance->up();
+            if(true === Utils::isSQL($upSql))
+            {
+                $conn->exec($upSql);
+            }
+
+            if (true === method_exists($migrationInstance, 'postUp'))
+            {
+                $postUpSql = $migrationInstance->postUp();
+                if(true === Utils::isSQL($postUpSql))
+                {
+                    $conn->exec($postUpSql);
+                }
+            }
+            $conn->commit();
+            $this->updateSchemaVersion($version, $database);
         }
-
-        $migrationInstance->up($conn);
-
-        if (true === method_exists($migrationInstance, 'postUp'))
+        catch(\PDOException $e)
         {
-            $migrationInstance->postUp($conn);
+            $conn->rollback();
+            $this->logger->write($e->getMessage(), null, "error");
+            exit();
         }
-
-        $this->updateSchemaVersion($version, $database);
     }
 
     protected function migrateDown($file, $prev_version, $database)
@@ -407,23 +438,45 @@ EOF;
         $version    = $matches[1];
         $className = Utils::camelize($matches[2]);
 
-        $migrationInstance = new $className();
-
-        $conn = $this->getConnection($database);
-
-        if (true === method_exists($migrationInstance, 'preDown'))
+        try
         {
-            $migrationInstance->preDown($conn);
+            $conn = $this->getConnection($database);
+            $conn->beginTransaction();
+
+            $migrationInstance = new $className($conn);
+
+            if (true === method_exists($migrationInstance, 'preDown'))
+            {
+                $preDownSql = $migrationInstance->preDown();
+                if(true === Utils::isSQL($preDownSql))
+                {
+                    $conn->exec($preDownSql);
+                }
+            }
+
+            $downSql = $migrationInstance->down();
+            if(true === Utils::isSQL($downSql))
+            {
+                $conn->exec($downSql);
+            }
+
+            if (true === method_exists($migrationInstance, 'postDown'))
+            {
+                $poseDownSql = $migrationInstance->postDown();
+                if(true === Utils::isSQL($poseDownSql))
+                {
+                    $conn->exec($poseDownSql);
+                }
+            }
+            $conn->commit();
+            $this->updateSchemaVersion($prev_version, $database);
         }
-
-        $sql = $migrationInstance->down($conn);
-
-        if (true === method_exists($migrationInstance, 'postDown'))
+        catch(\PDOException $e)
         {
-            $migrationInstance->postDown($conn);
+            $conn->rollback();
+            $this->logger->write($e->getMessage(), null, "error");
+            exit();
         }
-
-        $this->updateSchemaVersion($prev_version, $database);
     }
 
     /**
@@ -492,6 +545,9 @@ EOF;
 
             $this->conns[$database] = new \PDO($dsn, $user, $password);
             $this->conns[$database]->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
+            $this->conns[$database]->setAttribute(\PDO::MYSQL_ATTR_USE_BUFFERED_QUERY, true);
+
+
         }
 
         return $this->conns[$database];
@@ -658,4 +714,8 @@ EOF;
         return $version;
     }
 
+    public function unknownCommand($msg)
+    {
+        $this->logger->write($msg, null, 'error');
+    }
 }

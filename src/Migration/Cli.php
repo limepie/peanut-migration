@@ -205,7 +205,7 @@ class Cli
         }
         else
         {
-            throw new Exception('Unknown command: '.$command);
+            $migration ->unknownCommand('Unknown command: '.$command);
         }
     }
 

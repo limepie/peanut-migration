@@ -10,6 +10,7 @@ namespace Peanut\Migration;
  * Migration Utility Class
  *
  * @author kohkimakimoto <kohki.makimoto@gmail.com>
+ * @author Max <kwon@yejune.com>
  */
 class Utils
 {
@@ -61,4 +62,10 @@ class Utils
     {
         return strtolower(preg_replace(array('/([A-Z]+)([A-Z][a-z])/', '/([a-z\d])([A-Z])/'), array('\\1_\\2', '\\1_\\2'), strtr($id, '_', '.')));
     }
+
+    public static function isSQL($str)
+    {
+        return 1 === preg_match('#^insert|update|delete|select#i', trim($str)) ? true : false;
+    }
+
 }

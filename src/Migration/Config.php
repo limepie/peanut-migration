@@ -32,7 +32,8 @@ class Config
     public function get($name, $default = null, $delimiter = '/')
     {
         $config = $this->config;
-        foreach (explode($delimiter, $name) as $key) {
+        foreach (explode($delimiter, $name) as $key)
+        {
             $config = isset($config[$key]) ? $config[$key] : $default;
         }
         return $config;
@@ -75,21 +76,31 @@ class Config
     {
         $ret = array();
 
-        if ($array === null) {
+        if (null === $array)
+        {
             $array = $this->config;
         }
 
-        foreach ($array as $key => $val) {
-            if (is_array($val) && $val) {
-                if ($namespace === null) {
+        foreach ($array as $key => $val)
+        {
+            if (true === is_array($val) && $val)
+            {
+                if (null === $namespace)
+                {
                     $ret = array_merge($ret, $this->getAllOnFlatArray($key, $key, $val, $delimiter));
-                } else {
+                }
+                else
+                {
                     $ret = array_merge($ret, $this->getAllOnFlatArray($namespace.$delimiter.$key, $key, $val, $delimiter));
                 }
-            } else {
-                if ($namespace !== null) {
+            }
+            else
+            {
+                if (null !== $namespace) {
                     $ret[$namespace.$delimiter.$key] = $val;
-                } else {
+                }
+                else
+                {
                     $ret[$key] = $val;
                 }
             }
