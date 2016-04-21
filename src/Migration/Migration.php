@@ -385,7 +385,6 @@ EOF;
 
         try
         {
-
             $migrationInstance = new $className($conn);
 
             if (true === method_exists($migrationInstance, 'preUp'))
@@ -441,7 +440,6 @@ EOF;
         $conn = $this->getConnection($database);
         try
         {
-
             $migrationInstance = new $className($conn);
 
             if (true === method_exists($migrationInstance, 'preDown'))
