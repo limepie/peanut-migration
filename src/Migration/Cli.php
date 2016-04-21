@@ -23,20 +23,16 @@ class Cli
 
         try
         {
-
             $cli = new Self();
             $cli->execute($migration, $command, $arguments, $config);
-
         }
         catch (\Exception $e)
         {
-
             $debug = $migration->getConfig()->get('debug');
             $colors = $migration->getConfig()->get('colors');
 
             if (true === isset($debug) && $debug)
             {
-
                 if ($colors)
                 {
                     fputs(STDERR, pack('c',0x1B)."[1;37;41m".$e.pack('c',0x1B)."[0m\n");
@@ -45,11 +41,9 @@ class Cli
                 {
                     fputs(STDERR, $e);
                 }
-
             }
             else
             {
-
                 if ($colors)
                 {
                     fputs(STDERR, pack('c',0x1B)."[1;37;41m".$e->getMessage().pack('c',0x1B)."[0m\n");
@@ -58,7 +52,6 @@ class Cli
                 {
                     fputs(STDERR, $e->getMessage()."\n");
                 }
-
             }
         }
     }
@@ -144,25 +137,18 @@ class Cli
     {
         if ($command == 'help')
         {
-
             $migration ->helpForCli();
-
         }
         elseif ($command == 'init')
         {
-
             $migration ->init();
-
         }
         elseif ($command == 'config')
         {
-
             $migration ->listConfig();
-
         }
         elseif ($command == 'create')
         {
-
             if (count($arguments) > 0)
             {
                 $name = array_shift($arguments);
@@ -173,35 +159,26 @@ class Cli
             }
 
             $migration ->create($name, $arguments);
-
         }
         elseif ($command == 'status')
         {
-
             // arguments are database names to be processed.
             $migration ->status($arguments);
-
         }
         elseif ($command == 'migrate')
         {
-
             // arguments are database names to be processed.
             $migration ->migrate($arguments);
-
         }
         elseif ($command == 'up')
         {
-
             // arguments are database names to be processed.
             $migration ->up($arguments);
-
         }
         elseif ($command == 'down')
         {
-
             // arguments are database names to be processed.
             $migration ->down($arguments);
-
         }
         else
         {
