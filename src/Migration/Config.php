@@ -10,9 +10,11 @@ namespace Peanut\Migration;
  * Migration Connfig Class
  *
  * @author kohkimakimoto <kohki.makimoto@gmail.com>
+ * @author Max <kwon@yejune.com>
  */
 class Config
 {
+
     /**
      * Array of configuration values.
      * @var unknown
@@ -72,40 +74,4 @@ class Config
         return $this->config;
     }
 
-    public function getAllOnFlatArray($namespace = null, $key = null, $array = null, $delimiter = '/')
-    {
-        $ret = array();
-
-        if (null === $array)
-        {
-            $array = $this->config;
-        }
-
-        foreach ($array as $key => $val)
-        {
-            if (true === is_array($val) && $val)
-            {
-                if (null === $namespace)
-                {
-                    $ret = array_merge($ret, $this->getAllOnFlatArray($key, $key, $val, $delimiter));
-                }
-                else
-                {
-                    $ret = array_merge($ret, $this->getAllOnFlatArray($namespace.$delimiter.$key, $key, $val, $delimiter));
-                }
-            }
-            else
-            {
-                if (null !== $namespace) {
-                    $ret[$namespace.$delimiter.$key] = $val;
-                }
-                else
-                {
-                    $ret[$key] = $val;
-                }
-            }
-        }
-
-        return $ret;
-    }
 }

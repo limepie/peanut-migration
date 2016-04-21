@@ -9,27 +9,40 @@ namespace Peanut\Migration;
 /**
  * Migration Utility Class
  *
- * @author kohkimakimoto <kohki.makimoto@gmail.com>
  * @author Max <kwon@yejune.com>
  */
 class Utils
 {
+
     /**
      * Gets largest length of the array.
      * @param unknown $array
      */
     public static function arrayKeyLargestLength($array)
     {
-        $ret = 0;
-        $keys = array_keys($array);
-        foreach ($keys as $key)
+        return max(array_map('strlen', array_keys($array)));
+    }
+
+    public static function isSQL($str)
+    {
+        return true === is_string($str) && 1 === preg_match('#^insert|update|delete|select#i', trim($str)) ? true : false;
+    }
+
+    public static function arrayKeyFlatten($array, $namespace = null)
+    {
+        $iterator = new \RecursiveIteratorIterator(new \RecursiveArrayIterator($array));
+
+        $flat = [];
+        foreach ($iterator as $key => $value)
         {
-            if (strlen($key) > $ret)
+            $keys = null !== $namespace ? [$namespace] : [];
+            for ($i=0, $j=$iterator->getDepth(); $i<=$j; $i++)
             {
-                $ret = strlen($key);
+                $keys[] = $iterator->getSubIterator($i)->key();
             }
+            $flat[implode('/',$keys)] = $value;
         }
-        return $ret;
+        return $flat;
     }
 
     /*
@@ -61,11 +74,6 @@ class Utils
     public static function underscore($id)
     {
         return strtolower(preg_replace(array('/([A-Z]+)([A-Z][a-z])/', '/([a-z\d])([A-Z])/'), array('\\1_\\2', '\\1_\\2'), strtr($id, '_', '.')));
-    }
-
-    public static function isSQL($str)
-    {
-        return 1 === preg_match('#^insert|update|delete|select#i', trim($str)) ? true : false;
     }
 
 }

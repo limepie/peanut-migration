@@ -14,6 +14,7 @@ namespace Peanut\Migration;
  */
 class Logger
 {
+
     protected $config;
 
     public function __construct($config)
@@ -71,4 +72,5 @@ class Logger
             }
         }
     }
+
 }

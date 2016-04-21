@@ -66,10 +66,11 @@ class Migration
      */
     public function listConfig()
     {
-        $largestLength = Utils::arrayKeyLargestLength($this->config->getAllOnFlatArray());
+        $config = Utils::arrayKeyFlatten($this->config->getAll());
+        $largestLength = Utils::arrayKeyLargestLength($config);
         $this->logger->write("");
         $this->logger->write("Configurations :");
-        foreach ($this->config->getAllOnFlatArray() as $key => $val)
+        foreach ($config as $key => $val)
         {
             if ($largestLength === strlen($key))
             {
@@ -217,7 +218,7 @@ class Migration
             if (true === isset($files[1]))
             {
                 preg_match("/(\d+)_(.*)\.php$/", basename($files[1]), $matches);
-                $prev_version    = $matches[1];
+                $prev_version = $matches[1];
             }
 
             $this->migrateDown($files[0], $prev_version, $database);
@@ -284,7 +285,7 @@ END;
             if (1 === preg_match("/^\d+_.+\.php$/", basename($file)))
             {
                 preg_match("/(\d+)_(.*)\.php$/", basename($file), $matches);
-                $version    = $matches[1];
+                $version   = $matches[1];
                 $className = Utils::camelize($matches[2]);
 
                 // Check to exist same class name.
@@ -377,27 +378,27 @@ EOF;
         include_once $file;
 
         preg_match("/(\d+)_(.*)\.php$/", basename($file), $matches);
-        $version    = $matches[1];
+        $version   = $matches[1];
         $className = Utils::camelize($matches[2]);
 
+        $conn = $this->getConnection($database);
+        $conn->beginTransaction();
         try
         {
-            $conn = $this->getConnection($database);
-            $conn->beginTransaction();
 
             $migrationInstance = new $className($conn);
 
             if (true === method_exists($migrationInstance, 'preUp'))
             {
                 $preUpSql = $migrationInstance->preUp();
-                if(true === Utils::isSQL($preUpSql))
+                if (true === Utils::isSQL($preUpSql))
                 {
                     $conn->exec($preUpSql);
                 }
             }
 
             $upSql = $migrationInstance->up();
-            if(true === Utils::isSQL($upSql))
+            if (true === Utils::isSQL($upSql))
             {
                 $conn->exec($upSql);
             }
@@ -405,11 +406,12 @@ EOF;
             if (true === method_exists($migrationInstance, 'postUp'))
             {
                 $postUpSql = $migrationInstance->postUp();
-                if(true === Utils::isSQL($postUpSql))
+                if (true === Utils::isSQL($postUpSql))
                 {
                     $conn->exec($postUpSql);
                 }
             }
+
             $conn->commit();
             $this->updateSchemaVersion($version, $database);
         }
@@ -423,7 +425,7 @@ EOF;
 
     protected function migrateDown($file, $prev_version, $database)
     {
-        if(null === $prev_version)
+        if (null === $prev_version)
         {
             $this->logger->write("Processing migrate down to version initialization by ".basename($file)."", "[$database]");
         }
@@ -435,27 +437,27 @@ EOF;
         include_once $file;
 
         preg_match("/(\d+)_(.*)\.php$/", basename($file), $matches);
-        $version    = $matches[1];
+        $version   = $matches[1];
         $className = Utils::camelize($matches[2]);
 
+        $conn = $this->getConnection($database);
+        $conn->beginTransaction();
         try
         {
-            $conn = $this->getConnection($database);
-            $conn->beginTransaction();
 
             $migrationInstance = new $className($conn);
 
             if (true === method_exists($migrationInstance, 'preDown'))
             {
                 $preDownSql = $migrationInstance->preDown();
-                if(true === Utils::isSQL($preDownSql))
+                if (true === Utils::isSQL($preDownSql))
                 {
                     $conn->exec($preDownSql);
                 }
             }
 
             $downSql = $migrationInstance->down();
-            if(true === Utils::isSQL($downSql))
+            if (true === Utils::isSQL($downSql))
             {
                 $conn->exec($downSql);
             }
@@ -463,11 +465,12 @@ EOF;
             if (true === method_exists($migrationInstance, 'postDown'))
             {
                 $poseDownSql = $migrationInstance->postDown();
-                if(true === Utils::isSQL($poseDownSql))
+                if (true === Utils::isSQL($poseDownSql))
                 {
                     $conn->exec($poseDownSql);
                 }
             }
+
             $conn->commit();
             $this->updateSchemaVersion($prev_version, $database);
         }
@@ -519,7 +522,7 @@ EOF;
      */
     protected function getDatabaseNames($databases = array())
     {
-        if($databases)
+        if ($databases)
         {
             $this->validateDatabaseNames($databases);
         }
@@ -545,9 +548,7 @@ EOF;
 
             $this->conns[$database] = new \PDO($dsn, $user, $password);
             $this->conns[$database]->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
-            $this->conns[$database]->setAttribute(\PDO::MYSQL_ATTR_USE_BUFFERED_QUERY, true);
-
-
+            $this->conns[$database]->setAttribute(\PDO::ATTR_PERSISTENT, false);
         }
 
         return $this->conns[$database];
@@ -594,17 +595,16 @@ EOF;
 
     protected function getMigrationFileList($database)
     {
-        $files  = array();
+        $files   = array();
         $classes = array();
         $gfiles  = glob($this->migration_dir.'/*');
-
 
         foreach ($gfiles as $file)
         {
             if (1 === preg_match("/^\d+_".$database."\..+\.php$/", basename($file)))
             {
                 preg_match("/(\d+)_(.*)\.php$/", basename($file), $matches);
-                $version    = $matches[1];
+                $version   = $matches[1];
                 $className = Utils::camelize($matches[2]);
 
                 // Check to exist same class name.
@@ -637,9 +637,8 @@ EOF;
         {
             if (1 === preg_match("/^\d+_.+\.php$/", basename($file)))
             {
-
                 preg_match("/(\d+)_(.*)\.php$/", basename($file), $matches);
-                $version    = $matches[1];
+                $version   = $matches[1];
                 $className = Utils::camelize($matches[2]);
 
                 $class_text = file_get_contents($file);
@@ -666,7 +665,7 @@ EOF;
 
     protected function updateSchemaVersion($version, $database)
     {
-        if($version !== null)
+        if ($version !== null)
         {
             $this->logger->write("Setting schema version '$version' from '$database'", null, "debug");
         }
@@ -679,29 +678,29 @@ EOF;
             $version = null;
         }
 
-        $fp_cpl=fopen($this->version_path.'/.'.$database, 'wb');
-        if (false===$fp_cpl)
+        $fp = fopen($this->version_path.'/.'.$database, 'wb');
+        if (false === $fp)
         {
             $this->logger->write("Can't write version file ".$this->version_path.'/'.$database, null, "error");
             exit();
         }
-        fwrite($fp_cpl, $version);
-        fclose($fp_cpl);
+        fwrite($fp, $version);
+        fclose($fp);
     }
 
     protected function getSchemaVersion($database)
     {
         $this->logger->write("Getting schema version from '$database'", null, "debug");
 
-        if(false === is_file($this->version_path.'/.'.$database))
+        if (false === is_file($this->version_path.'/.'.$database))
         {
             $this->updateSchemaVersion('', $database);
         }
-        $fp=fopen($this->version_path.'/.'.$database, 'rb');
-        $is_version = filesize($this->version_path.'/.'.$database);
-        if($is_version)
+        $fp = fopen($this->version_path.'/.'.$database, 'rb');
+        $isVersion = filesize($this->version_path.'/.'.$database);
+        if ($isVersion)
         {
-            $version = fread($fp, $is_version);
+            $version = fread($fp, $isVersion);
             fclose($fp);
             $this->logger->write("Current schema version is ".$version, "[$database]");
         }
@@ -718,4 +717,5 @@ EOF;
     {
         $this->logger->write($msg, null, 'error');
     }
+
 }
